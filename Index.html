@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATH QUEST - 50 Soal Gaming</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:#0f0c29;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:white;min-height:100vh;padding:15px}
+  .container{max-width:650px;margin:0 auto}
+  .header{text-align:center;padding:20px 0}
+  .header h1{font-size:32px;background:linear-gradient(90deg,#ffde59,#ff6a00,#ff00cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stats{display:flex;gap:10px;margin:15px 0}
+  .card{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:15px;padding:12px;text-align:center;flex:1;border:1px solid rgba(255,255,255,.2)}
+  .card b{font-size:20px;display:block}
+  .hp-bar{height:14px;background:#333;border-radius:10px;overflow:hidden;margin-top:8px}
+  .hp-fill{height:100%;background:linear-gradient(90deg,#00ff88,#00ccff);width:100%;transition:.4s}
+  .progress{height:10px;background:#333;border-radius:10px;margin:15px 0;overflow:hidden}
+  .progress-fill{height:100%;background:#ffde59;width:0%;transition:.3s}
+  .q-box{background:white;color:#222;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .q-box h2{font-size:22px;margin:10px 0 18px;line-height:1.4}
+  .badge{display:inline-block;background:#7c3aed;color:white;padding:5px 12px;border-radius:20px;font-size:12px}
+  .timer{float:right;background:#ef4444;color:white;padding:5px 12px;border-radius:20px;font-weight:bold}
+  .opt{display:block;width:100%;text-align:left;background:#f1f5f9;border:2px solid #e2e8f0;padding:14px 16px;margin:8px 0;border-radius:14px;font-size:16px;cursor:pointer;transition:.2s}
+  .opt:hover{background:#ddd6fe;transform:scale(1.02);border-color:#7c3aed}
+  .opt.correct{background:#22c55e!important;color:white;border-color:#22c55e}
+  .opt.wrong{background:#ef4444!important;color:white;border-color:#ef4444;animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .btn{width:100%;background:linear-gradient(90deg,#7c3aed,#db2777);color:white;border:none;padding:16px;border-radius:15px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:15px}
+  .center{text-align:center;padding:40px 20px}
+  .big{font-size:60px;margin:10px 0}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>⚔️ MATH QUEST ⚔️</h1><p>50 Soal • Kelas 8 • Mode Gaming</p></div>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="q-box center">
+    <div class="big">🎮</div>
+    <h2>Siap Jadi LEGEND Matematika?</h2>
+    <p style="color:#666;margin:10px 0">50 Soal • 30 detik/soal • 3 Nyawa • HP 100<br>Level 1: Aljabar | Level 2: PLSV | Level 3: Himpunan<br>Level 4: Relasi & Fungsi | Level 5: Teorema Pythagoras</p>
+    <input id="playerName" placeholder="Masukin nama lo, Bro..." style="width:100%;padding:14px;border-radius:12px;border:2px solid #ddd;font-size:16px;margin:10px 0">
+    <button class="btn" onclick="startGame()">▶️ MULAI MAIN</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden">
+    <div class="stats">
+      <div class="card">❤️ NYAWA<b id="lives">❤️❤️❤️</b></div>
+      <div class="card">⭐ XP<b id="xp">0</b></div>
+      <div class="card">🔥 COMBO<b id="combo">x0</b></div>
+    </div>
+    <div>HP <div class="hp-bar"><div id="hpFill" class="hp-fill"></div></div></div>
+    <div class="progress"><div id="progFill" class="progress-fill"></div></div>
+    <p id="progText" style="text-align:center;font-size:13px;opacity:.8">Soal 1 / 50</p>
+    <div class="q-box" style="margin-top:12px">
+      <span id="levelBadge" class="badge">LEVEL 1 - ALJABAR</span>
+      <span id="timer" class="timer">30s</span>
+      <h2 id="question">Loading...</h2>
+      <div id="options"></div>
+      <p id="feedback" style="margin-top:10px;font-weight:bold;min-height:24px"></p>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="endScreen" class="hidden q-box center">
+    <div class="big" id="rankEmoji">🏆</div>
+    <h2 id="rankTitle">LEGEND!</h2>
+    <p id="finalScore" style="font-size:18px;margin:12px 0;line-height:1.6"></p>
+    <button class="btn" onclick="location.reload()">🔄 MAIN LAGI</button>
+    <button class="btn" style="background:#222" onclick="shareWA()">📤 SHARE KE WA</button>
+  </div>
+</div>
+
+<script>
+let questions = [];
+// GENERATE 50 SOAL OTOMATIS - KELAS 8
+function gen(){
+  let q=[];
+  // Level 1: Aljabar (1-10)
+  for(let i=0;i<10;i++){
+    let a=2+Math.floor(Math.random()*8), b=3+Math.floor(Math.random()*9), x=2+Math.floor(Math.random()*7);
+    let ans=a*x+b, wrong1=ans+2, wrong2=ans-3, wrong3=ans+5;
+    q.push({lvl:"LEVEL 1 - ALJABAR", q:`Jika x = ${x}, berapa nilai dari ${a}x + ${b} ?`, opts:shuffle([ans,wrong1,wrong2,wrong3]), ans:ans, exp:`${a}×${x}+${b} = ${a*x}+${b} = ${ans}`});
+  }
+  // Level 2: PLSV (11-20)
+  for(let i=0;i<10;i++){
+    let a=2+Math.floor(Math.random()*5), x=3+Math.floor(Math.random()*6), b=4+Math.floor(Math.random()*8);
+    let c=a*x+b;
+    q.push({lvl:"LEVEL 2 - PLSV", q:`Tentukan nilai x dari ${a}x + ${b} = ${c}`, opts:shuffle([x,x+1,x-1,x+2]), ans:x, exp:`${a}x = ${c}-${b} = ${a*x}, x = ${x}`});
+  }
+  // Level 3: Himpunan / Operasi (21-30)
+  for(let i=0;i<10;i++){
+    let a=12+Math.floor(Math.random()*30), b=5+Math.floor(Math.random()*15);
+    let op=Math.random()>0.5?'+':'-';
+    let ans=op=='+'?a+b:a-b;
+    q.push({lvl:"LEVEL 3 - OPERASI HITUNG", q:`Hitung cepat: ${a} ${op} ${b} = ?`, opts:shuffle([ans,ans+1,ans-2,ans+10]), ans:ans, exp:`${a} ${op} ${b} = ${ans}`});
+  }
+  // Level 4: Persentase / Perbandingan (31-40)
+  for(let i=0;i<10;i++){
+    let harga=(20+Math.floor(Math.random()*20))*1000;
+    let dis=10+Math.floor(Math.random()*4)*10;
+    let ans=harga - harga*dis/100;
+    q.push({lvl:"LEVEL 4 - DISKON", q:`Harga baju Rp ${harga.toLocaleString('id-ID')}, diskon ${dis}%. Harga bayar?`, opts:shuffle([ans,ans+2000,ans-2000,ans+5000]), ans:ans, exp:`Diskon ${dis}% = Rp ${(harga*dis/100).toLocaleString('id-ID')}, bayar Rp ${ans.toLocaleString('id-ID')}`});
+  }
+  // Level 5: Pythagoras (41-50)
+  let triples=[[3,4,5],[5,12,13],[6,8,10],[9,12,15],[8,15,17]];
+  for(let i=0;i<10;i++){
+    let t=triples[i%triples.length], k=1+Math.floor(Math.random()*2);
+    let a=t[0]*k, b=t[1]*k, c=t[2]*k;
+    q.push({lvl:"LEVEL 5 - PYTHAGORAS", q:`Segitiga siku-siku alas ${a} cm, tinggi ${b} cm. Sisi miringnya?`, opts:shuffle([c,c+1,c-1,c+2]), ans:c, exp:`√(${a}²+${b}²) = √${a*a+b*b} = ${c}`});
+  }
+  return q;
+}
+function shuffle(a){return a.sort(()=>Math.random()-0.5)}
+let idx=0, xp=0, hp=100, lives=3, combo=0, correct=0, timerInt, timeLeft=30, player="Player";
+
+function startGame(){
+  player=document.getElementById('playerName').value||"Zra";
+  questions=gen();
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  showQ();
+}
+function showQ(){
+  if(idx>=50||lives<=0||hp<=0){endGame();return}
+  let cur=questions[idx];
+  document.getElementById('levelBadge').innerText=cur.lvl;
+  document.getElementById('question').innerText=cur.q;
+  document.getElementById('progText').innerText=`Soal ${idx+1} / 50 • ${player}`;
+  document.getElementById('progFill').style.width=((idx)/50*100)+"%";
+  document.getElementById('feedback').innerText="";
+  let optDiv=document.getElementById('options'); optDiv.innerHTML="";
+  cur.opts.forEach(o=>{
+    let btn=document.createElement('button'); btn.className='opt'; btn.innerText=typeof o==='number'?o.toLocaleString('id-ID'):o;
+    btn.onclick=()=>check(btn,o,cur); optDiv.appendChild(btn);
+  });
+  timeLeft=30; clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    timeLeft--; document.getElementById('timer').innerText=timeLeft+"s";
+    if(timeLeft<=0){clearInterval(timerInt); wrong(cur,null)}
+  },1000);
+}
+function check(btn,val,cur){
+  clearInterval(timerInt);
+  let btns=document.querySelectorAll('.opt'); btns.forEach(b=>b.disabled=true);
+  if(val===cur.ans){
+    btn.classList.add('correct'); combo++; correct++; xp+=100+combo*10;
+    document.getElementById('feedback').innerText="✅ BENAR! +"+(100+combo*10)+" XP • "+cur.exp;
+    document.getElementById('feedback').style.color="green";
+  } else { wrong(cur,btn); return; }
+  updateStats(); setTimeout(()=>{idx++; showQ()},1300);
+}
+function wrong(cur,btn){
+  if(btn) btn.classList.add('wrong');
+  document.querySelectorAll('.opt').forEach(b=>{
+    if(b.innerText.replace(/\./g,'').replace(/,/g,'')==String(cur.ans).replace(/\./g,'')) b.classList.add('correct');
+    b.disabled=true;
+  });
+  combo=0; hp-=20; if(hp<=0){lives--; hp=100; if(lives>0) document.getElementById('feedback').innerText="💔 NYAWA -1! HP pulih lagi!";}
+  document.getElementById('feedback').innerText=`❌ SALAH! Jawaban: ${cur.ans.toLocaleString('id-ID')} • ${cur.exp}`;
+  document.getElementById('feedback').style.color="red";
+  updateStats(); setTimeout(()=>{idx++; showQ()},2000);
+}
+function updateStats(){
+  document.getElementById('xp').innerText=xp;
+  document.getElementById('combo').innerText="x"+combo;
+  document.getElementById('hpFill').style.width=hp+"%";
+  document.getElementById('lives').innerText="❤️".repeat(Math.max(0,lives));
+}
+function endGame(){
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.remove('hidden');
+  let rank="NOOB", emoji="🐣";
+  if(correct>=45){rank="LEGEND 👑";emoji="👑"} else if(correct>=35){rank="PRO PLAYER";emoji="🔥"} else if(correct>=25){rank="DIAMOND";emoji="💎"} else if(correct>=15){rank="GOLD";emoji="🥇"}
+  document.getElementById('rankEmoji').innerText=emoji;
+  document.getElementById('rankTitle').innerText=rank;
+  document.getElementById('finalScore').innerHTML=`<b>${player}</b><br>Benar: ${correct}/50<br>XP: ${xp}<br>Nyawa sisa: ${lives}<br><br>Level lo: <b>${rank}</b>`;
+}
+function shareWA(){
+  let txt=`Gue dapet ${xp} XP di MATH QUEST! Benar ${correct}/50, rank gue LEGEND! Coba lo mainin: `;
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt+location.href)}`);
+}
+</script>
+</body>
+</html>
